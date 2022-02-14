@@ -20,6 +20,15 @@ typedef struct s_map
 	
 } t_map;
 
+typedef struct s_img_data
+{
+    void    *img;
+    char    *addr;
+    int        bpp;
+    int        line_length;
+    int        endian;
+}    t_img_data;
+
 typedef struct s_cube
 {
 	void	*mlx_ptr;
@@ -27,10 +36,13 @@ typedef struct s_cube
 	//char map;
 	int map_size_x;
 	int map_size_y;
+	t_img_data img;
 
 	t_player player;
 
 } t_cube;
+
+
 
 
 # ifdef __linux__

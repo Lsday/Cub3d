@@ -6,7 +6,7 @@
 /*   By: oronda <oronda@student.42nice.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/24 09:39:00 by oronda            #+#    #+#             */
-/*   Updated: 2022/02/01 21:23:13 by oronda           ###   ########.fr       */
+/*   Updated: 2022/02/11 21:50:52 by oronda           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,14 +64,23 @@ int worldMap[mapWidth][mapHeight]=
   {4,4,4,4,4,4,4,4,4,4,1,1,1,2,2,2,2,2,2,3,3,3,3,3}
 };
 
-void draw_player(t_cube *data)
+void    mlx_put_pixel_img(t_img_data *img, int x, int y, int color)
 {
-	mlx_pixel_put(data->mlx_ptr, data->wnd_ptr, data->player.x    , data->player.y     ,0x69EC80);
-	mlx_pixel_put(data->mlx_ptr, data->wnd_ptr, data->player.x + 1, data->player.y + 1 ,0x69EC80);
-	mlx_pixel_put(data->mlx_ptr, data->wnd_ptr, data->player.x - 1, data->player.y - 1 ,0x69EC80);
-	mlx_pixel_put(data->mlx_ptr, data->wnd_ptr, data->player.x - 1, data->player.y + 1 ,0x69EC80);
-	mlx_pixel_put(data->mlx_ptr, data->wnd_ptr, data->player.x + 1, data->player.y - 1 ,0x69EC80);
-} 
+    char    *dst;
+
+    dst = img->addr + (y * img->line_length + x * (img->bpp / 8));
+    *((unsigned int *)dst) = color;
+}
+
+
+// void draw_player(t_cube *data)
+// {
+// 	mlx_pixel_put(data->mlx_ptr, data->wnd_ptr, data->player.x    , data->player.y     ,0x69EC80);
+// 	mlx_pixel_put(data->mlx_ptr, data->wnd_ptr, data->player.x + 1, data->player.y + 1 ,0x69EC80);
+// 	mlx_pixel_put(data->mlx_ptr, data->wnd_ptr, data->player.x - 1, data->player.y - 1 ,0x69EC80);
+// 	mlx_pixel_put(data->mlx_ptr, data->wnd_ptr, data->player.x - 1, data->player.y + 1 ,0x69EC80);
+// 	mlx_pixel_put(data->mlx_ptr, data->wnd_ptr, data->player.x + 1, data->player.y - 1 ,0x69EC80);
+// } 
 // int update_player(t_cube *data)
 // {
 // 	//write(1,"update_player\n", 14);
@@ -191,14 +200,13 @@ int handle_input(int keycode, void *g_data)
 
 	if(hasmove)
 	{
-		mlx_clear_window(data->mlx_ptr, data->wnd_ptr);	
-			render(data);
+		//mlx_clear_window(data->mlx_ptr, data->wnd_ptr);	
+		render(data);
+		
 	}
 	
 	return 0;
 }
-
-
 
 void initPlayer(t_cube *data)
 {
@@ -223,6 +231,13 @@ void init(t_cube *data)
 	
 	init_mlx(data);
 	initPlayer(data);
+
+	t_img_data img_t;
+
+
+	 img_t.img = mlx_new_image(data->mlx_ptr,SCREEN_WIDTH,SCREEN_HEIGHT);
+	 img_t.addr = mlx_get_data_addr(img_t.img, &img_t.bpp, &img_t.line_length, &img_t.endian);
+	 data->img = img_t;
 	
 }
 
@@ -244,37 +259,38 @@ void init(t_cube *data)
 // }
 
 // verLine(x, drawStart, drawEnd, color);
-void draw_line(t_cube *data, int x, int drawStart, int drawEnd, int color)
-{
-	int i;
+// void draw_line(t_cube *data, int x, int drawStart, int drawEnd, int color)
+// {
+// 	int i;
 
-	i = 0;
-	while(drawStart + i < drawEnd)
-	{
-		mlx_pixel_put(data->mlx_ptr, data->wnd_ptr, x, drawStart + i, color);
-		i++;
-	}
-}
+// 	i = 0;
+// 	while(drawStart + i < drawEnd)
+// 	{
+// 		mlx_pixel_put(data->mlx_ptr, data->wnd_ptr, x, drawStart + i, color);
+
+// 		i++;
+// 	}
+// }
 
 
-void draw_square(t_cube *data, t_vector *origin, int lenght, int color)
-{
-	int x;
-	int y;
+// void draw_square(t_cube *data, t_vector *origin, int lenght, int color)
+// {
+// 	int x;
+// 	int y;
 
-	x = 0;
-	y = 0;
-	while(y < lenght)
-	{
-		x = 0;
-		while ( x < lenght)
-		{
-			mlx_pixel_put(data->mlx_ptr, data->wnd_ptr, origin->x + x, origin->y + y, color);
-			x++;
-		}
-		y++;
-	}
-}
+// 	x = 0;
+// 	y = 0;
+// 	while(y < lenght)
+// 	{
+// 		x = 0;
+// 		while ( x < lenght)
+// 		{
+// 			mlx_pixel_put(data->mlx_ptr, data->wnd_ptr, origin->x + x, origin->y + y, color);
+// 			x++;
+// 		}
+// 		y++;
+// 	}
+// }
 
 void draw_rectangle(t_cube *data, t_vector *origin, int xlenght, int ylenght, int color)
 {
@@ -288,18 +304,16 @@ void draw_rectangle(t_cube *data, t_vector *origin, int xlenght, int ylenght, in
 		x = 0;
 		while ( x < xlenght)
 		{
-			mlx_pixel_put(data->mlx_ptr, data->wnd_ptr, origin->x + x, origin->y + y, color);
+			mlx_put_pixel_img(&data->img, origin->x + x, origin->y + y, color);
+			//mlx_pixel_put(data->mlx_ptr, data->wnd_ptr, origin->x + x, origin->y + y, color);
 			x++;
 		}
 		y++;
 	}
 }
 
-
-
 int main()
 {	
-
 	t_cube data;
 	
 	init(&data);
@@ -308,72 +322,98 @@ int main()
 	return 0;
 }
 
-typedef struct s_img_data
-{
-    void    *img;
-    char    *addr;
-    int        bpp;
-    int        line_length;
-    int        endian;
-}    t_img_data;
-
-
-
-void    mlx_put_pixel_img(t_img_data *img, int x, int y, int color)
-{
-    char    *dst;
-
-    dst = img->addr + (y * img->line_length + x * (img->bpp / 8));
-    *((unsigned int *)dst) = color;
-}
-
 void render(t_cube *data)
 {
   
-  #define texWidth 64
+	#define texWidth 64
 	#define texHeight 64
 
-	t_img_data img;
-
-
-	img.img = mlx_new_image(data->mlx_ptr,SCREEN_WIDTH,SCREEN_HEIGHT);
-	mlx_get_data_addr
-	img.addr = get_data_addr(img.img, img.bpp etc.)
-	
-	
-	//draw_rectangle(data,&((t_vector){0,0}),SCREEN_WIDTH,SCREEN_HEIGHT/2,COLOR_GREY);
+	draw_rectangle(data,&((t_vector){0,0}),SCREEN_WIDTH,SCREEN_HEIGHT/2,COLOR_GREY);
 	draw_rectangle(data,&((t_vector){0,SCREEN_HEIGHT/2}),SCREEN_WIDTH,SCREEN_HEIGHT/2,COLOR_DARK_GREY);
-	
+
 	int buffer[SCREEN_HEIGHT][SCREEN_WIDTH]; // y-coordinate first because it works per scanline
 	int texture[8][ texWidth * texHeight];
+
+	//generate some textures
+	for(int x = 0; x < texWidth; x++)
+	{
+		for(int y = 0; y < texHeight; y++)
+		{
+			int xorcolor = (x * 256 / texWidth) ^ (y * 256 / texHeight);
+			//int xcolor = x * 256 / texWidth;
+			int ycolor = y * 256 / texHeight;
+			int xycolor = y * 128 / texHeight + x * 128 / texWidth;
+			texture[0][texWidth * y + x] = 65536 * 254 * (x != y && x != texWidth - y); //flat red texture with black cross
+			texture[1][texWidth * y + x] = xycolor + 256 * xycolor + 65536 * xycolor; //sloped greyscale
+			texture[2][texWidth * y + x] = 256 * xycolor + 65536 * xycolor; //sloped yellow gradient
+			texture[3][texWidth * y + x] = xorcolor + 256 * xorcolor + 65536 * xorcolor; //xor greyscale
+			texture[4][texWidth * y + x] = 256 * xorcolor; //xor green
+			texture[5][texWidth * y + x] = 65536 * 192 * (x % 16 && y % 16); //red bricks
+			texture[6][texWidth * y + x] = 65536 * ycolor; //red gradient
+			texture[7][texWidth * y + x] = 128 + 256 * 128 + 65536 * 128; //flat grey texture
+		}
+	}
 	
+	int h = SCREEN_HEIGHT;
+	// //FLOOR CASTING
+	// for(int y = 0; y < h; y++)
+	// {
+	// 	// rayDir for leftmost ray (x = 0) and rightmost ray (x = w)
+	// 	float rayDirX0 = data->player.dirX - data->player.planeX;
+	// 	float rayDirY0 = data->player.dirY - data->player.planeY;
+	// 	float rayDirX1 = data->player.dirX + data->player.planeX;
+	// 	float rayDirY1 = data->player.dirY + data->player.planeY;
 
-//generate some textures
-  for(int x = 0; x < texWidth; x++)
-  {
-	  for(int y = 0; y < texHeight; y++)
-  	{
-		int xorcolor = (x * 256 / texWidth) ^ (y * 256 / texHeight);
-		//int xcolor = x * 256 / texWidth;
-		int ycolor = y * 256 / texHeight;
-		int xycolor = y * 128 / texHeight + x * 128 / texWidth;
-		texture[0][texWidth * y + x] = 65536 * 254 * (x != y && x != texWidth - y); //flat red texture with black cross
-		texture[1][texWidth * y + x] = xycolor + 256 * xycolor + 65536 * xycolor; //sloped greyscale
-		texture[2][texWidth * y + x] = 256 * xycolor + 65536 * xycolor; //sloped yellow gradient
-		texture[3][texWidth * y + x] = xorcolor + 256 * xorcolor + 65536 * xorcolor; //xor greyscale
-		texture[4][texWidth * y + x] = 256 * xorcolor; //xor green
-		texture[5][texWidth * y + x] = 65536 * 192 * (x % 16 && y % 16); //red bricks
-		texture[6][texWidth * y + x] = 65536 * ycolor; //red gradient
-		texture[7][texWidth * y + x] = 128 + 256 * 128 + 65536 * 128; //flat grey texture
-  	}
-  }
+	// 	// Current y position compared to the center of the screen (the horizon)
+	// 	int p = y - SCREEN_HEIGHT / 2;
+
+	// 	// Vertical position of the camera.
+	// 	float posZ = 0.5 * SCREEN_HEIGHT;
+
+	// 	// Horizontal distance from the camera to the floor for the current row.
+	// 	// 0.5 is the z position exactly in the middle between floor and ceiling.
+	// 	float rowDistance = posZ / p;
+
+	// 	// calculate the real world step vector we have to add for each x (parallel to camera plane)
+	// 	// adding step by step avoids multiplications with a weight in the inner loop
+	// 	float floorStepX = rowDistance * (rayDirX1 - rayDirX0) / SCREEN_HEIGHT;
+	// 	float floorStepY = rowDistance * (rayDirY1 - rayDirY0) / SCREEN_HEIGHT;
+
+	// 	// real world coordinates of the leftmost column. This will be updated as we step to the right.
+	// 	float floorX = data->player.x + rowDistance * rayDirX0;
+	// 	float floorY = data->player.y+ rowDistance * rayDirY0;
+
+	// 	for(int x = 0; x < SCREEN_HEIGHT; ++x)
+	// 	{
+	// 		// the cell coord is simply got from the integer parts of floorX and floorY
+	// 		int cellX = (int)(floorX);
+	// 		int cellY = (int)(floorY);
+
+	// 		// get the texture coordinate from the fractional part
+	// 		int tx = (int)(texWidth * (floorX - cellX)) & (texWidth - 1);
+	// 		int ty = (int)(texHeight * (floorY - cellY)) & (texHeight - 1);
+
+	// 		floorX += floorStepX;
+	// 		floorY += floorStepY;
+
+	// 		// choose texture and draw the pixel
+	// 		int floorTexture = 3;
+	// 		int ceilingTexture = 6;
+	// 		int color;
+
+	// 		// floor
+	// 		color = texture[floorTexture][texWidth * ty + tx];
+	// 		color = (color >> 1) & 8355711; // make a bit darker
+	// 		buffer[y][x] = color;
+
+	// 		//ceiling (symmetrical, at screenHeight - y - 1 instead of y)
+	// 		color = texture[ceilingTexture][texWidth * ty + tx];
+	// 		color = (color >> 1) & 8355711; // make a bit darker
+	// 		buffer[SCREEN_HEIGHT - y - 1][x] = color;
+	// 	}
+	// }
   
-  	 
-	 
-
 	int w = SCREEN_WIDTH;
-	//while(1)
-	//{
     for(int x = 0; x < w; x++)
     {
 		//calculate ray position and direction
@@ -388,20 +428,20 @@ void render(t_cube *data)
 		double sideDistX;
 		double sideDistY;
 
-      //length of ray from one x or y-side to next x or y-side
-      //these are derived as:
-      //deltaDistX = sqrt(1 + (rayDirY * rayDirY) / (raydata.player.dirX * raydata.player.dirX))
-      //deltaDistY = sqrt(1 + (raydata.player.dirX * raydata.player.dirX) / (rayDirY * rayDirY))
-      //which can be simplified to abs(|rayDir| / raydata.player.dirX) and abs(|rayDir| / rayDirY)
-      //where |rayDir| is the length of the vector (raydata.player.dirX, rayDirY). Its length,
-      //unlike (data.player.dirX, data.player.dirY) is not 1, however this does not matter, only the
-      //ratio between deltaDistX and deltaDistY matters, due to the way the DDA
-      //stepping further below works. So the values can be computed as below.
-      // Division through zero is prevented, even though technically that's not
-      // needed in C++ with IEEE 754 floating point values.
+		//length of ray from one x or y-side to next x or y-side
+		//these are derived as:
+		//deltaDistX = sqrt(1 + (rayDirY * rayDirY) / (raydata.player.dirX * raydata.player.dirX))
+		//deltaDistY = sqrt(1 + (raydata.player.dirX * raydata.player.dirX) / (rayDirY * rayDirY))
+		//which can be simplified to abs(|rayDir| / raydata.player.dirX) and abs(|rayDir| / rayDirY)
+		//where |rayDir| is the length of the vector (raydata.player.dirX, rayDirY). Its length,
+		//unlike (data.player.dirX, data.player.dirY) is not 1, however this does not matter, only the
+		//ratio between deltaDistX and deltaDistY matters, due to the way the DDA
+		//stepping further below works. So the values can be computed as below.
+		// Division through zero is prevented, even though technically that's not
+		// needed in C++ with IEEE 754 floating point values.
 
-      //double deltaDistX = sqrt(1 + (rayDirY * rayDirY) / (rayDirX * rayDirX));
-      //double deltaDistY = sqrt(1 + (rayDirX * rayDirX) / (rayDirY * rayDirY));
+		//double deltaDistX = sqrt(1 + (rayDirY * rayDirY) / (rayDirX * rayDirX));
+		//double deltaDistY = sqrt(1 + (rayDirX * rayDirX) / (rayDirY * rayDirY));
 
 		double deltaDistX =(rayDirX == 0) ? 1e30 : fabs(1 / rayDirX);
 		double deltaDistY = (rayDirY == 0) ? 1e30 : fabs(1 / rayDirY);
@@ -410,12 +450,13 @@ void render(t_cube *data)
 
 		double perpWallDist;
 
-      //what direction to step in x or y-direction (either +1 or -1)
+      	//what direction to step in x or y-direction (either +1 or -1)
 		int stepX;
 		int stepY;
 
 		int hit = 0; //was there a wall hit?
 		int side; //was a NS or a EW wall hit?
+
 		//calculate step and initial sideDist
 		if(rayDirX < 0)
 		{
@@ -437,10 +478,11 @@ void render(t_cube *data)
 			stepY = 1;
 			sideDistY = (mapY + 1.0 - data->player.y) * deltaDistY;
 		}
+
 		//perform DDA
 		while(hit == 0)
 		{
-		//jump to next map square, either in x-direction, or in y-direction
+			//jump to next map square, either in x-direction, or in y-direction
 			if(sideDistX < sideDistY)
 			{
 				sideDistX += deltaDistX;
@@ -456,6 +498,7 @@ void render(t_cube *data)
 			//Check if ray has hit a wall
 			if(worldMap[mapX][mapY] > 0) hit = 1;
 		}
+
 		//Calculate distance projected on camera direction. This is the shortest distance from the point where the wall is
 		//hit to the camera plane. Euclidean to center camera point would give fisheye effect!
 		//This can be computed as (mapX - data.player.x + (1 - stepX) / 2) / raydata.player.dirX for side == 0, or same formula with Y
@@ -463,14 +506,10 @@ void render(t_cube *data)
 		//because they were left scaled to |rayDir|. sideDist is the entire length of the ray above after the multiple
 		//steps, but we subtract deltaDist once because one step more into the wall was taken above.
 		if(side == 0)
-		{
 			perpWallDist = (sideDistX - deltaDistX);
-		}
-			
 		else 
-		{
 			perpWallDist = (sideDistY - deltaDistY);
-		}
+		
 		// perpWallDist = (sideDistY - deltaDistY);
 
 
@@ -481,134 +520,55 @@ void render(t_cube *data)
 		//calculate lowest and highest pixel to fill in current stripe
 		int drawStart = -lineHeight / 2 + h / 2;
 		if(drawStart < 0)
-		{
 			drawStart = 0;
-		}
 
 		int drawEnd = lineHeight / 2 + h / 2;
 		if(drawEnd >= h)
-		{
 			drawEnd = h - 1;
+		
+		//texturing calculations
+		int texNum = worldMap[mapX][mapY] - 1; //1 subtracted from it so that texture 0 can be used!
+
+		//calculate value of wallX
+		double wallX; //where exactly the wall was hit
+		if (side == 0) wallX = data->player.y + perpWallDist * rayDirY;
+		else           wallX = data->player.x + perpWallDist * rayDirX;
+		wallX -= floor((wallX));
+
+		//x coordinate on the texture
+		int texX = (int)(wallX * (double)(texWidth));
+		if(side == 0 && rayDirX > 0) texX = texWidth - texX - 1;
+		if(side == 1 && rayDirY < 0) texX = texWidth - texX - 1;
+
+		// How much to increase the texture coordinate per screen pixel
+		double step = 1.0 * texHeight / lineHeight;
+
+		// Starting texture coordinate
+		double texPos = (drawStart - h / 2 + lineHeight / 2) * step;
+
+		for(int y = drawStart; y< drawEnd; y++)
+		{
+			// Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
+			int texY = (int)texPos & (texHeight - 1);
+			texPos += step;
+			int color = texture[texNum][texHeight * texY + texX];
+			//make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
+			if(side == 1) color = (color >> 1) & 8355711;
+
+		
+			//mlx_pixel_put(data->mlx_ptr,data->wnd_ptr,x,y,color);
+			mlx_put_pixel_img(&data->img, x, y, color);
+
+			//buffer[y][x] = color;
 		}
 
-		//texturing calculations
-      int texNum = worldMap[mapX][mapY] - 1; //1 subtracted from it so that texture 0 can be used!
-
-      //calculate value of wallX
-      double wallX; //where exactly the wall was hit
-      if (side == 0) wallX = data->player.y + perpWallDist * rayDirY;
-      else           wallX = data->player.x + perpWallDist * rayDirX;
-      wallX -= floor((wallX));
-
-      //x coordinate on the texture
-      int texX = (int)(wallX * (double)(texWidth));
-      if(side == 0 && rayDirX > 0) texX = texWidth - texX - 1;
-      if(side == 1 && rayDirY < 0) texX = texWidth - texX - 1;
-
-	         // How much to increase the texture coordinate per screen pixel
-      double step = 1.0 * texHeight / lineHeight;
-      // Starting texture coordinate
-      double texPos = (drawStart - h / 2 + lineHeight / 2) * step;
-      for(int y = drawStart; y<drawEnd; y++)
-      {
-        // Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
-        int texY = (int)texPos & (texHeight - 1);
-        texPos += step;
-        int color = texture[texNum][texHeight * texY + texX];
-        //make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
-        if(side == 1) color = (color >> 1) & 8355711;
-
-	
-
-		mlx_pixel_put(data->mlx_ptr,data->wnd_ptr,x,y,color);
-        //buffer[y][x] = color;
-      }
-	  	//draw_line(data, x, drawStart, drawEnd, COLOR_BLUE);
+		//draw_line(data, x, drawStart, drawEnd, COLOR_BLUE);
 		//drawBuffer(buffer[0]);
 		for(int y = 0; y < h; y++)
-		 for(int x = 0; x < w; x++)
-		  buffer[y][x] = 0;
+		for(int x = 0; x < w; x++)
+		buffer[y][x] = 0;
 		
-
-		//choose wall color
-		//ColorRGB color;
-		//  int color;
-		// switch(worldMap[mapX][mapY])
-		// {
-		// 	// case 1:  color = RGB_Red;    break; //red
-		// 	// case 2:  color = RGB_Green;  break; //green
-		// 	// case 3:  color = RGB_Blue;   break; //blue
-		// 	// case 4:  color = RGB_White;  break; //white
-		// 	// default: color = RGB_Yellow; break; //yellow
-
-		// 	case 1: color = COLOR_RED; break;
-		// 	//case 2: color = COLOR_RED; break;
-		// 	//case 3: color = COLOR_RED; break;
-		// 	//case 4: color = COLOR_RED; break;
-		// 	//default: color = COLOR_BLUE; break; //yellow
-
-		// }
-
-		// //give x and y sides different brightness
-		// if(side == 1) 
-		// {
-		// 	color = COLOR_BLUE;
-		// }
-
-		//draw the pixels of the stripe as a vertical line
-		// verLine(x, drawStart, drawEnd, color);
-
-		//draw_line(data, x, drawStart, drawEnd, color);
+		
 	}
-    //timing for input and FPS counter
-    //oldTime = time;
-   // time = time mlx_ getTicks();
-    //double frameTime = (time - oldTime) / 1000.0; //frameTime is the time this frame has taken, in seconds
-	//mlx_string_put(data.mlx_ptr,data.wnd_ptr,400,400,COLOR_GREEN,itoa(frameTime));
-   // print(1.0 / frameTime); //FPS counter
-   //redraw();
-   // cls();
-
-//     //speed modifiers
-//     double moveSpeed = frameTime * 5.0; //the constant value is in squares/second
-//     double rotSpeed = frameTime * 3.0; //the constant value is in radians/second
-//     readKeys();
-//     //move forward if no wall in front of you
-    // if(keyDown(SDLK_UP))
-    // {
-    //   if(worldMap[int(posX + dirX * moveSpeed)][int(posY)] == false) posX += dirX * moveSpeed;
-    //   if(worldMap[int(posX)][int(posY + dirY * moveSpeed)] == false) posY += dirY * moveSpeed;
-    // }
-    // //move backwards if no wall behind you
-    // if(keyDown(SDLK_DOWN))
-    // {
-    //   if(worldMap[int(posX - dirX * moveSpeed)][int(posY)] == false) posX -= dirX * moveSpeed;
-    //   if(worldMap[int(posX)][int(posY - dirY * moveSpeed)] == false) posY -= dirY * moveSpeed;
-    // }
-    // //rotate to the right
-    // if(keyDown(SDLK_RIGHT))
-    // {
-    //   //both camera direction and camera plane must be rotated
-    //   double oldDirX = dirX;
-    //   dirX = dirX * cos(-rotSpeed) - dirY * sin(-rotSpeed);
-    //   dirY = oldDirX * sin(-rotSpeed) + dirY * cos(-rotSpeed);
-    //   double oldPlaneX = planeX;
-    //   planeX = planeX * cos(-rotSpeed) - planeY * sin(-rotSpeed);
-    //   planeY = oldPlaneX * sin(-rotSpeed) + planeY * cos(-rotSpeed);
-    // }
-    // //rotate to the left
-    // if(keyDown(SDLK_LEFT))
-    // {
-    //   //both camera direction and camera plane must be rotated
-    //   double oldDirX = dirX;
-    //   dirX = dirX * cos(rotSpeed) - dirY * sin(rotSpeed);
-    //   dirY = oldDirX * sin(rotSpeed) + dirY * cos(rotSpeed);
-    //   double oldPlaneX = planeX;
-    //   planeX = planeX * cos(rotSpeed) - planeY * sin(rotSpeed);
-    //   planeY = oldPlaneX * sin(rotSpeed) + planeY * cos(rotSpeed);
-    // }
-	mlx_im
-
-	
- // }
+	mlx_put_image_to_window(data->mlx_ptr, data->wnd_ptr, data->img.img, 0, 0);
 }
