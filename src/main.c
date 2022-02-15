@@ -10,7 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../mlx_linux/mlx.h"
+//#include "../mlx_linux/mlx.h"
+#include "mlx.h"
 #include "cube.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -30,8 +31,7 @@
 
 #define mapWidth 24
 #define mapHeight 24
-#define SCREEN_WIDTH 800
-#define SCREEN_HEIGHT 600
+
 
 void render(t_cube *data);
 
@@ -72,42 +72,6 @@ void    mlx_put_pixel_img(t_img_data *img, int x, int y, int color)
     *((unsigned int *)dst) = color;
 }
 
-
-// void draw_player(t_cube *data)
-// {
-// 	mlx_pixel_put(data->mlx_ptr, data->wnd_ptr, data->player.x    , data->player.y     ,0x69EC80);
-// 	mlx_pixel_put(data->mlx_ptr, data->wnd_ptr, data->player.x + 1, data->player.y + 1 ,0x69EC80);
-// 	mlx_pixel_put(data->mlx_ptr, data->wnd_ptr, data->player.x - 1, data->player.y - 1 ,0x69EC80);
-// 	mlx_pixel_put(data->mlx_ptr, data->wnd_ptr, data->player.x - 1, data->player.y + 1 ,0x69EC80);
-// 	mlx_pixel_put(data->mlx_ptr, data->wnd_ptr, data->player.x + 1, data->player.y - 1 ,0x69EC80);
-// } 
-// int update_player(t_cube *data)
-// {
-// 	//write(1,"update_player\n", 14);
-// 	//ft_putnbr(data->player.y);
-// 	//mlx_clear_window(data->mlx_ptr,data->wnd_ptr);
-// 	//draw_player(data);
-// }
-
-// void draw_mini_map(t_cube *data)
-// {
-
-// }
-
-// void update(t_cube *data)
-// {
-// 	//update_player(data);
-// 	//mlx_loop(data->mlx_ptr);
-// 	// while(1)
-// 	// {
-		
-// 	// 	//draw_mini_map(&data);
-	
-// 	// }
-
-	
-// }
-
 int handle_input(int keycode, void *g_data)
 {
 	t_cube	*data;
@@ -117,7 +81,7 @@ int handle_input(int keycode, void *g_data)
 	//ft_putnbr(keycode);
 
 	//move forward if no wall in front of you
-    if (keycode == 119)
+    if (keycode == KEY_UP)
 	{
 		if(worldMap[(int)(data->player.x + data->player.dirX)][(int)(data->player.y)] == 0)
 		{
@@ -129,12 +93,11 @@ int handle_input(int keycode, void *g_data)
 		{
 			data->player.y += data->player.dirY;
 			hasmove = 1;
-		}
-			
+		}	
 	}
 
     //move backwards if no wall behind you
-    if(keycode == 115) 
+    if(keycode == KEY_DOWN) 
     {
       if(worldMap[(int)(data->player.x - data->player.dirX)][(int)(data->player.y)] == 0)
 	  {
@@ -150,7 +113,7 @@ int handle_input(int keycode, void *g_data)
     }
 
     //rotate to the right
-    if(keycode == 101)
+    if(keycode == KEY_ROTATE_RIGHT)
     {
 		
       //both camera direction and camera plane must be rotated
@@ -163,7 +126,7 @@ int handle_input(int keycode, void *g_data)
 	  hasmove = 1;
     }
     //rotate to the left
-    if(keycode == 113)
+    if(keycode == KEY_ROTATE_LEFT)
     {
       //both camera direction and camera plane must be rotated
       double oldDirX =  data->player.dirX;
@@ -176,14 +139,14 @@ int handle_input(int keycode, void *g_data)
     }
 	
 	 
-	if (keycode == 97) // LEFT
+	if (keycode == KEY_LEFT) // STRAFE LEFT
 	{
 		data->player.x -= data->player.planeX;
 		data->player.y -= data->player.planeY;
 		 hasmove = 1;
 	}
 	
-	if (keycode == 100) //RIGHT
+	if (keycode == KEY_RIGHT) //STRAFE RIGHT
 	{
 		data->player.x += data->player.planeX;
 		data->player.y += data->player.planeY;
@@ -223,7 +186,7 @@ void init_mlx(t_cube *data)
 	data->mlx_ptr = mlx_init();
 	data->wnd_ptr = mlx_new_window(data->mlx_ptr,SCREEN_WIDTH,SCREEN_HEIGHT,"BelloCubo");
 	mlx_key_hook(data->wnd_ptr, &handle_input, data);
-	//mlx_expose_hook(data->wnd_ptr,&update_player,data);
+	
 }
 
 void init(t_cube *data)
@@ -241,57 +204,6 @@ void init(t_cube *data)
 	
 }
 
-// void get_map(t_cube *data)
-// {
-	
-// }
-
-// void draw_line(t_cube *data, t_vector *origin, t_vector *dir, int lenght)
-// {
-// 	int i;
-
-// 	i = 0;
-// 	while(i < lenght)
-// 	{
-// 		mlx_pixel_put(data->mlx_ptr, data->wnd_ptr, origin->x + i * dir->x, origin->y + i * dir->y, COLOR_RED);
-// 		i++;
-// 	}
-// }
-
-// verLine(x, drawStart, drawEnd, color);
-// void draw_line(t_cube *data, int x, int drawStart, int drawEnd, int color)
-// {
-// 	int i;
-
-// 	i = 0;
-// 	while(drawStart + i < drawEnd)
-// 	{
-// 		mlx_pixel_put(data->mlx_ptr, data->wnd_ptr, x, drawStart + i, color);
-
-// 		i++;
-// 	}
-// }
-
-
-// void draw_square(t_cube *data, t_vector *origin, int lenght, int color)
-// {
-// 	int x;
-// 	int y;
-
-// 	x = 0;
-// 	y = 0;
-// 	while(y < lenght)
-// 	{
-// 		x = 0;
-// 		while ( x < lenght)
-// 		{
-// 			mlx_pixel_put(data->mlx_ptr, data->wnd_ptr, origin->x + x, origin->y + y, color);
-// 			x++;
-// 		}
-// 		y++;
-// 	}
-// }
-
 void draw_rectangle(t_cube *data, t_vector *origin, int xlenght, int ylenght, int color)
 {
 	int x;
@@ -305,114 +217,42 @@ void draw_rectangle(t_cube *data, t_vector *origin, int xlenght, int ylenght, in
 		while ( x < xlenght)
 		{
 			mlx_put_pixel_img(&data->img, origin->x + x, origin->y + y, color);
-			//mlx_pixel_put(data->mlx_ptr, data->wnd_ptr, origin->x + x, origin->y + y, color);
 			x++;
 		}
 		y++;
 	}
 }
 
-int main()
-{	
-	t_cube data;
-	
-	init(&data);
-	render(&data);
-	mlx_loop(data.mlx_ptr);
-	return 0;
-}
-
-void render(t_cube *data)
+void generate_textures(t_cube *data)
 {
-  
-	#define texWidth 64
-	#define texHeight 64
-
-	draw_rectangle(data,&((t_vector){0,0}),SCREEN_WIDTH,SCREEN_HEIGHT/2,COLOR_GREY);
-	draw_rectangle(data,&((t_vector){0,SCREEN_HEIGHT/2}),SCREEN_WIDTH,SCREEN_HEIGHT/2,COLOR_DARK_GREY);
-
-	int buffer[SCREEN_HEIGHT][SCREEN_WIDTH]; // y-coordinate first because it works per scanline
-	int texture[8][ texWidth * texHeight];
-
-	//generate some textures
 	for(int x = 0; x < texWidth; x++)
 	{
 		for(int y = 0; y < texHeight; y++)
 		{
 			int xorcolor = (x * 256 / texWidth) ^ (y * 256 / texHeight);
-			//int xcolor = x * 256 / texWidth;
 			int ycolor = y * 256 / texHeight;
 			int xycolor = y * 128 / texHeight + x * 128 / texWidth;
-			texture[0][texWidth * y + x] = 65536 * 254 * (x != y && x != texWidth - y); //flat red texture with black cross
-			texture[1][texWidth * y + x] = xycolor + 256 * xycolor + 65536 * xycolor; //sloped greyscale
-			texture[2][texWidth * y + x] = 256 * xycolor + 65536 * xycolor; //sloped yellow gradient
-			texture[3][texWidth * y + x] = xorcolor + 256 * xorcolor + 65536 * xorcolor; //xor greyscale
-			texture[4][texWidth * y + x] = 256 * xorcolor; //xor green
-			texture[5][texWidth * y + x] = 65536 * 192 * (x % 16 && y % 16); //red bricks
-			texture[6][texWidth * y + x] = 65536 * ycolor; //red gradient
-			texture[7][texWidth * y + x] = 128 + 256 * 128 + 65536 * 128; //flat grey texture
+			data->textures.texture[0][texWidth * y + x] = 65536 * 254 * (x != y && x != texWidth - y); //flat red texture with black cross
+			data->textures.texture[1][texWidth * y + x] = xycolor + 256 * xycolor + 65536 * xycolor; //sloped greyscale
+			data->textures.texture[2][texWidth * y + x] = 256 * xycolor + 65536 * xycolor; //sloped yellow gradient
+			data->textures.texture[3][texWidth * y + x] = xorcolor + 256 * xorcolor + 65536 * xorcolor; //xor greyscale
+			data->textures.texture[4][texWidth * y + x] = 256 * xorcolor; //xor green
+			data->textures.texture[5][texWidth * y + x] = 65536 * 192 * (x % 16 && y % 16); //red bricks
+			data->textures.texture[6][texWidth * y + x] = 65536 * ycolor; //red gradient
+			data->textures.texture[7][texWidth * y + x] = 128 + 256 * 128 + 65536 * 128; //flat grey texture
 		}
 	}
-	
-	int h = SCREEN_HEIGHT;
-	// //FLOOR CASTING
-	// for(int y = 0; y < h; y++)
-	// {
-	// 	// rayDir for leftmost ray (x = 0) and rightmost ray (x = w)
-	// 	float rayDirX0 = data->player.dirX - data->player.planeX;
-	// 	float rayDirY0 = data->player.dirY - data->player.planeY;
-	// 	float rayDirX1 = data->player.dirX + data->player.planeX;
-	// 	float rayDirY1 = data->player.dirY + data->player.planeY;
+}
 
-	// 	// Current y position compared to the center of the screen (the horizon)
-	// 	int p = y - SCREEN_HEIGHT / 2;
 
-	// 	// Vertical position of the camera.
-	// 	float posZ = 0.5 * SCREEN_HEIGHT;
 
-	// 	// Horizontal distance from the camera to the floor for the current row.
-	// 	// 0.5 is the z position exactly in the middle between floor and ceiling.
-	// 	float rowDistance = posZ / p;
-
-	// 	// calculate the real world step vector we have to add for each x (parallel to camera plane)
-	// 	// adding step by step avoids multiplications with a weight in the inner loop
-	// 	float floorStepX = rowDistance * (rayDirX1 - rayDirX0) / SCREEN_HEIGHT;
-	// 	float floorStepY = rowDistance * (rayDirY1 - rayDirY0) / SCREEN_HEIGHT;
-
-	// 	// real world coordinates of the leftmost column. This will be updated as we step to the right.
-	// 	float floorX = data->player.x + rowDistance * rayDirX0;
-	// 	float floorY = data->player.y+ rowDistance * rayDirY0;
-
-	// 	for(int x = 0; x < SCREEN_HEIGHT; ++x)
-	// 	{
-	// 		// the cell coord is simply got from the integer parts of floorX and floorY
-	// 		int cellX = (int)(floorX);
-	// 		int cellY = (int)(floorY);
-
-	// 		// get the texture coordinate from the fractional part
-	// 		int tx = (int)(texWidth * (floorX - cellX)) & (texWidth - 1);
-	// 		int ty = (int)(texHeight * (floorY - cellY)) & (texHeight - 1);
-
-	// 		floorX += floorStepX;
-	// 		floorY += floorStepY;
-
-	// 		// choose texture and draw the pixel
-	// 		int floorTexture = 3;
-	// 		int ceilingTexture = 6;
-	// 		int color;
-
-	// 		// floor
-	// 		color = texture[floorTexture][texWidth * ty + tx];
-	// 		color = (color >> 1) & 8355711; // make a bit darker
-	// 		buffer[y][x] = color;
-
-	// 		//ceiling (symmetrical, at screenHeight - y - 1 instead of y)
-	// 		color = texture[ceilingTexture][texWidth * ty + tx];
-	// 		color = (color >> 1) & 8355711; // make a bit darker
-	// 		buffer[SCREEN_HEIGHT - y - 1][x] = color;
-	// 	}
-	// }
+void render(t_cube *data)
+{
   
+	draw_rectangle(data,&((t_vector){0,0}),SCREEN_WIDTH,SCREEN_HEIGHT/2,COLOR_GREY);
+	draw_rectangle(data,&((t_vector){0,SCREEN_HEIGHT/2}),SCREEN_WIDTH,SCREEN_HEIGHT/2,COLOR_DARK_GREY);
+
+	int h = SCREEN_HEIGHT;
 	int w = SCREEN_WIDTH;
     for(int x = 0; x < w; x++)
     {
@@ -551,24 +391,24 @@ void render(t_cube *data)
 			// Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
 			int texY = (int)texPos & (texHeight - 1);
 			texPos += step;
-			int color = texture[texNum][texHeight * texY + texX];
+			int color = data->textures.texture[texNum][texHeight * texY + texX];
 			//make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
 			if(side == 1) color = (color >> 1) & 8355711;
-
-		
-			//mlx_pixel_put(data->mlx_ptr,data->wnd_ptr,x,y,color);
 			mlx_put_pixel_img(&data->img, x, y, color);
 
-			//buffer[y][x] = color;
 		}
-
-		//draw_line(data, x, drawStart, drawEnd, COLOR_BLUE);
-		//drawBuffer(buffer[0]);
-		for(int y = 0; y < h; y++)
-		for(int x = 0; x < w; x++)
-		buffer[y][x] = 0;
-		
 		
 	}
 	mlx_put_image_to_window(data->mlx_ptr, data->wnd_ptr, data->img.img, 0, 0);
+}
+
+int main(void)
+{	
+	t_cube data;
+	
+	init(&data);
+	generate_textures(&data);
+	render(&data);
+	mlx_loop(data.mlx_ptr);
+	return 0;
 }

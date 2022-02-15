@@ -3,6 +3,11 @@
 
 # include <math.h>
 
+#define texWidth 64
+	#define texHeight 64
+	#define SCREEN_WIDTH 800
+#define SCREEN_HEIGHT 600
+
 
 typedef struct s_player
 {
@@ -15,11 +20,6 @@ typedef struct s_player
 
 }	t_player;
 
-typedef struct s_map
-{
-	
-} t_map;
-
 typedef struct s_img_data
 {
     void    *img;
@@ -29,18 +29,27 @@ typedef struct s_img_data
     int        endian;
 }    t_img_data;
 
+typedef struct s_texture
+{
+	int buffer[SCREEN_HEIGHT][SCREEN_WIDTH];
+	int texture[8][texWidth * texHeight];
+	
+} t_texture;
+
 typedef struct s_cube
 {
 	void	*mlx_ptr;
 	void	*wnd_ptr;
-	//char map;
 	int map_size_x;
 	int map_size_y;
 	t_img_data img;
-
+	t_texture textures;
 	t_player player;
+	
 
 } t_cube;
+
+
 
 
 
@@ -58,6 +67,9 @@ typedef struct s_cube
 #  define KEY_LEFT 0
 #  define KEY_RIGHT 2
 #  define KEY_ECHAP 53
+#  define KEY_ROTATE_RIGHT 14
+#  define KEY_ROTATE_LEFT 12
+
 # endif
 
 # define SPRITE_SIZE 64
