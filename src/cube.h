@@ -28,7 +28,7 @@ typedef struct s_ray
 	int stepY;
 	double deltaDistX;
 	double deltaDistY;
-	double sideDistX;
+	double sideDistX;  //length of ray from current position to next x or y-side
 	double sideDistY;
 	int hit;
 	int side;

@@ -32,9 +32,7 @@
 #define mapWidth 24
 #define mapHeight 24
 
-
 void render(t_cube *data);
-
 
 int worldMap[mapWidth][mapHeight]=
 {
@@ -275,21 +273,20 @@ void render(t_cube *data)
 	draw_rectangle(data,&((t_vector){0,SCREEN_HEIGHT/2}),SCREEN_WIDTH,SCREEN_HEIGHT/2,COLOR_DARK_GREY);
 	t_ray ray;
 
-	int h = SCREEN_HEIGHT;
-	int w = SCREEN_WIDTH;
-    for(int x = 0; x < w; x++)
+	
+    for(int x = 0; x < SCREEN_WIDTH; x++)
     {
 		//calculate ray position and direction
-		double cameraX = cameraX =  2 * x / (double)w - 1; //x-coordinate in camera space
-		double rayDirX = data->player.dirX +  data->player.planeX * cameraX;
-		double rayDirY = data->player.dirY + data->player.planeY * cameraX;
+		data->cameraX = 2 * x / (double)SCREEN_WIDTH - 1; //x-coordinate in camera space
+		ray.rayDirX = data->player.dirX +  data->player.planeX * data->cameraX;
+		ray.rayDirY = data->player.dirY + data->player.planeY * data->cameraX;
 		//which box of the map we're in
-		int mapX = (int)(data->player.x);
-		int mapY = (int)(data->player.y);
+		data->map.mapX = (int)(data->player.x);
+		data->map.mapY = (int)(data->player.y);
 
 		//length of ray from current position to next x or y-side
-		double sideDistX;
-		double sideDistY;
+		// double sideDistX;
+		// double sideDistY;
 
 		//length of ray from one x or y-side to next x or y-side
 		//these are derived as:
@@ -306,8 +303,8 @@ void render(t_cube *data)
 		//double deltaDistX = sqrt(1 + (rayDirY * rayDirY) / (rayDirX * rayDirX));
 		//double deltaDistY = sqrt(1 + (rayDirX * rayDirX) / (rayDirY * rayDirY));
 
-		double deltaDistX =(rayDirX == 0) ? 1e30 : fabs(1 / rayDirX);
-		double deltaDistY = (rayDirY == 0) ? 1e30 : fabs(1 / rayDirY);
+		double deltaDistX =(ray.rayDirX == 0) ? 1e30 : fabs(1 / ray.rayDirX);
+		double deltaDistY = (ray.rayDirY == 0) ? 1e30 : fabs(1 / ray.rayDirY);
 
 		double perpWallDist;
 
@@ -319,25 +316,25 @@ void render(t_cube *data)
 		int side; //was a NS or a EW wall hit?
 
 		//calculate step and initial sideDist
-		if(rayDirX < 0)
+		if(ray.rayDirX < 0)
 		{
 			stepX = -1;
-			sideDistX = (data->player.x - mapX) * deltaDistX;
+			ray.sideDistX = (data->player.x - data->map.mapX) * deltaDistX;
 		}
 		else
 		{
 			stepX = 1;
-			sideDistX = (mapX + 1.0 - data->player.x) * deltaDistX;
+			ray.sideDistX = (data->map.mapX + 1.0 - data->player.x) * deltaDistX;
 		}
-		if(rayDirY < 0)
+		if(ray.rayDirY < 0)
 		{
 			stepY = -1;
-			sideDistY = (data->player.y - mapY) * deltaDistY;
+			ray.sideDistY = (data->player.y - data->map.mapY) * deltaDistY;
 		}
 		else
 		{
 			stepY = 1;
-			sideDistY = (mapY + 1.0 - data->player.y) * deltaDistY;
+			ray.sideDistY = (data->map.mapY + 1.0 - data->player.y) * deltaDistY;
 		}
 		//calculate_steps(t_ray *ray, t_cube *data)
 
@@ -345,20 +342,20 @@ void render(t_cube *data)
 		while(hit == 0)
 		{
 			//jump to next map square, either in x-direction, or in y-direction
-			if(sideDistX < sideDistY)
+			if(ray.sideDistX < ray.sideDistY)
 			{
-				sideDistX += deltaDistX;
-				mapX += stepX;
+				ray.sideDistX += deltaDistX;
+				data->map.mapX += stepX;
 				side = 0;
 			}
 			else
 			{
-				sideDistY += deltaDistY;
-				mapY += stepY;
+				ray.sideDistY += deltaDistY;
+				data->map.mapY += stepY;
 				side = 1;
 			}
 			//Check if ray has hit a wall
-			if(worldMap[mapX][mapY] > 0) hit = 1;
+			if(worldMap[data->map.mapX][data->map.mapY] > 0) hit = 1;
 		}
 
 		//Calculate distance projected on camera direction. This is the shortest distance from the point where the wall is
@@ -368,45 +365,44 @@ void render(t_cube *data)
 		//because they were left scaled to |rayDir|. sideDist is the entire length of the ray above after the multiple
 		//steps, but we subtract deltaDist once because one step more into the wall was taken above.
 		if(side == 0)
-			perpWallDist = (sideDistX - deltaDistX);
+			perpWallDist = (ray.sideDistX - deltaDistX);
 		else 
-			perpWallDist = (sideDistY - deltaDistY);
+			perpWallDist = (ray.sideDistY - deltaDistY);
 		
 		// perpWallDist = (sideDistY - deltaDistY);
 
 
 		//Calculate height of line to draw on screen
-		int h = SCREEN_HEIGHT;
-		int lineHeight = (int)(h / perpWallDist);
+		int lineHeight = (int)(SCREEN_HEIGHT / perpWallDist);
 
 		//calculate lowest and highest pixel to fill in current stripe
-		int drawStart = -lineHeight / 2 + h / 2;
+		int drawStart = -lineHeight / 2 + SCREEN_HEIGHT / 2;
 		if(drawStart < 0)
 			drawStart = 0;
 
-		int drawEnd = lineHeight / 2 + h / 2;
-		if(drawEnd >= h)
-			drawEnd = h - 1;
+		int drawEnd = lineHeight / 2 + SCREEN_HEIGHT / 2;
+		if(drawEnd >= SCREEN_HEIGHT)
+			drawEnd = SCREEN_HEIGHT - 1;
 		
 		//texturing calculations
-		int texNum = worldMap[mapX][mapY] - 1; //1 subtracted from it so that texture 0 can be used!
+		int texNum = worldMap[data->map.mapX][data->map.mapY] - 1; //1 subtracted from it so that texture 0 can be used!
 
 		//calculate value of wallX
 		double wallX; //where exactly the wall was hit
-		if (side == 0) wallX = data->player.y + perpWallDist * rayDirY;
-		else           wallX = data->player.x + perpWallDist * rayDirX;
+		if (side == 0) wallX = data->player.y + perpWallDist * ray.rayDirY;
+		else           wallX = data->player.x + perpWallDist * ray.rayDirX;
 		wallX -= floor((wallX));
 
 		//x coordinate on the texture
 		int texX = (int)(wallX * (double)(texWidth));
-		if(side == 0 && rayDirX > 0) texX = texWidth - texX - 1;
-		if(side == 1 && rayDirY < 0) texX = texWidth - texX - 1;
+		if(side == 0 && ray.rayDirX > 0) texX = texWidth - texX - 1;
+		if(side == 1 && ray.rayDirY < 0) texX = texWidth - texX - 1;
 
 		// How much to increase the texture coordinate per screen pixel
 		double step = 1.0 * texHeight / lineHeight;
 
 		// Starting texture coordinate
-		double texPos = (drawStart - h / 2 + lineHeight / 2) * step;
+		double texPos = (drawStart - SCREEN_HEIGHT / 2 + lineHeight / 2) * step;
 
 		for(int y = drawStart; y< drawEnd; y++)
 		{
@@ -417,9 +413,7 @@ void render(t_cube *data)
 			//make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
 			if(side == 1) color = (color >> 1) & 8355711;
 			mlx_put_pixel_img(&data->img, x, y, color);
-
 		}
-		
 	}
 	mlx_put_image_to_window(data->mlx_ptr, data->wnd_ptr, data->img.img, 0, 0);
 }
