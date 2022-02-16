@@ -20,6 +20,32 @@ typedef struct s_player
 
 }	t_player;
 
+typedef struct s_ray
+{
+	double rayDirX;
+	double rayDirY;
+	int stepX;
+	int stepY;
+	double deltaDistX;
+	double deltaDistY;
+	double sideDistX;
+	double sideDistY;
+	int hit;
+	int side;
+	double perpWallDist;
+}	t_ray;
+
+typedef struct s_map
+{
+	int mapX;
+	int mapY;
+} t_map;
+
+typedef struct s_camera
+{
+	
+} t_camera;
+
 typedef struct s_img_data
 {
     void    *img;
@@ -31,20 +57,19 @@ typedef struct s_img_data
 
 typedef struct s_texture
 {
-	int buffer[SCREEN_HEIGHT][SCREEN_WIDTH];
 	int texture[8][texWidth * texHeight];
-	
 } t_texture;
 
 typedef struct s_cube
 {
 	void	*mlx_ptr;
 	void	*wnd_ptr;
-	int map_size_x;
-	int map_size_y;
+	
 	t_img_data img;
 	t_texture textures;
 	t_player player;
+	t_map map;
+	double cameraX;
 	
 
 } t_cube;

@@ -244,13 +244,36 @@ void generate_textures(t_cube *data)
 	}
 }
 
-
+void calculate_steps(t_ray *ray, t_cube *data)
+{
+	if(ray->rayDirX < 0)
+	{
+		ray->stepX = -1;
+		ray->sideDistX = (data->player.x - data->map.mapX) * ray->deltaDistX;
+	}
+	else
+	{
+		ray->stepX = 1;
+		ray->sideDistX = (data->map.mapX + 1.0 - data->player.x) * ray->deltaDistX;
+	}
+	if(ray->rayDirY < 0)
+	{
+		ray->stepY = -1;
+		ray->sideDistY = (data->player.y - data->map.mapY) * ray->deltaDistY;
+	}
+	else
+	{
+		ray->stepY = 1;
+		ray->sideDistY = (data->map.mapY + 1.0 - data->player.y) * ray->deltaDistY;
+	}
+}
 
 void render(t_cube *data)
 {
   
 	draw_rectangle(data,&((t_vector){0,0}),SCREEN_WIDTH,SCREEN_HEIGHT/2,COLOR_GREY);
 	draw_rectangle(data,&((t_vector){0,SCREEN_HEIGHT/2}),SCREEN_WIDTH,SCREEN_HEIGHT/2,COLOR_DARK_GREY);
+	t_ray ray;
 
 	int h = SCREEN_HEIGHT;
 	int w = SCREEN_WIDTH;
@@ -286,8 +309,6 @@ void render(t_cube *data)
 		double deltaDistX =(rayDirX == 0) ? 1e30 : fabs(1 / rayDirX);
 		double deltaDistY = (rayDirY == 0) ? 1e30 : fabs(1 / rayDirY);
 
-
-
 		double perpWallDist;
 
       	//what direction to step in x or y-direction (either +1 or -1)
@@ -318,6 +339,7 @@ void render(t_cube *data)
 			stepY = 1;
 			sideDistY = (mapY + 1.0 - data->player.y) * deltaDistY;
 		}
+		//calculate_steps(t_ray *ray, t_cube *data)
 
 		//perform DDA
 		while(hit == 0)

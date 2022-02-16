@@ -3,7 +3,7 @@ SRC = src/main.c
 CC = gcc
 OBJS = $(SRC:%.c=%.o)
 NAME = cube
-FLAGS = #-Werror -Wall -Werror
+FLAGS = -g #-Werror -Wall -Werror
 
 # #LINUX
 # %.o: %.c
@@ -17,7 +17,7 @@ FLAGS = #-Werror -Wall -Werror
 	$(CC) $(FLAGS) -Imlx -c $< -o $@
 
 $(NAME): $(OBJS)
-	$(CC) $(OBJS) -lmlx -framework OpenGL -framework AppKit -o $(NAME)
+	$(CC) $(FLAGS) $(OBJS) -lmlx -framework OpenGL -framework AppKit -o $(NAME)
 
 clean :
 	rm -rf ${OBJS}
