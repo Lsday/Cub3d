@@ -268,26 +268,41 @@ void calculate_steps(t_ray *ray, t_cube *data)
 
 void DDA(t_cube *data, t_ray *ray)
 {
-		ray->hit = 0;
-		while(ray->hit == 0)
+	ray->hit = 0;
+	while(ray->hit == 0)
+	{
+		//jump to next map square, either in x-direction, or in y-direction
+		if(ray->sideDistX < ray->sideDistY)
 		{
-			//jump to next map square, either in x-direction, or in y-direction
-			if(ray->sideDistX < ray->sideDistY)
-			{
-				ray->sideDistX += ray->deltaDistX;
-				data->map.mapX += ray->stepX;
-				ray->side = 0;
-			}
-			else
-			{
-				ray->sideDistY += ray->deltaDistY;
-				data->map.mapY += ray->stepY;
-				ray->side = 1;
-			}
-			//Check if ray has hit a wall
-			if(worldMap[data->map.mapX][data->map.mapY] > 0) 
-				ray->hit = 1;
+			ray->sideDistX += ray->deltaDistX;
+			data->map.mapX += ray->stepX;
+			ray->side = 0;
 		}
+		else
+		{
+			ray->sideDistY += ray->deltaDistY;
+			data->map.mapY += ray->stepY;
+			ray->side = 1;
+		}
+		//Check if ray has hit a wall
+		if(worldMap[data->map.mapX][data->map.mapY] > 0) 
+			ray->hit = 1;
+	}
+}
+
+void calculate_wall_height(t_cube *data, t_ray *ray)
+{
+	
+	data->lineHeight = (int)(SCREEN_HEIGHT / ray->perpWallDist);
+
+	//calculate lowest and highest pixel to fill in current stripe
+	data->drawStart = -data->lineHeight / 2 + SCREEN_HEIGHT / 2;
+	if(data->drawStart < 0)
+		data->drawStart = 0;
+
+	data->drawEnd = data->lineHeight / 2 + SCREEN_HEIGHT / 2;
+	if(data->drawEnd >= SCREEN_HEIGHT)
+		data->drawEnd = SCREEN_HEIGHT - 1;
 }
 
 void calculate_ray_pos_and_dir(t_cube *data, t_ray *ray, int *x)
@@ -299,13 +314,50 @@ void calculate_ray_pos_and_dir(t_cube *data, t_ray *ray, int *x)
 		data->map.mapX = (int)(data->player.x);
 		data->map.mapY = (int)(data->player.y);
 }
+
+void calculate_ray_x_impact(t_cube *data, t_ray *ray)
+{
+	
+		if (ray->side == 0) 
+			ray->wallX = data->player.y + ray->perpWallDist * ray->rayDirY;
+		else           
+			ray->wallX = data->player.x + ray->perpWallDist * ray->rayDirX;
+		ray->wallX -= floor((ray->wallX));
+}
+
+void calculate_tex_x_coordinate(t_cube *data, t_ray *ray)
+{
+		//x coordinate on the texture
+		data->texX = (int)(ray->wallX * (double)(texWidth));
+		if(ray->side == 0 && ray->rayDirX > 0)
+			data->texX = texWidth - data->texX - 1;
+		if(ray->side == 1 && ray->rayDirY < 0)
+			data->texX = texWidth - data->texX - 1;
+}
+
+void draw_texture(t_cube *data, t_ray *ray, int *x)
+{
+	double step = 1.0 * texHeight / data->lineHeight;
+	double texPos = (data->drawStart - SCREEN_HEIGHT / 2 + data->lineHeight / 2) * step;
+
+	for(int y = data->drawStart; y< data->drawEnd; y++)
+	{
+		// Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
+		int texY = (int)texPos & (texHeight - 1);
+		texPos += step;
+		int color = data->textures.texture[data->texNum][texHeight * texY + data->texX];
+		//make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
+		if(ray->side == 1) color = (color >> 1) & 8355711;
+		mlx_put_pixel_img(&data->img, *x, y, color);
+	}
+}
+
 void render(t_cube *data)
 {
   
 	draw_rectangle(data,&((t_vector){0,0}),SCREEN_WIDTH,SCREEN_HEIGHT/2,COLOR_GREY);
 	draw_rectangle(data,&((t_vector){0,SCREEN_HEIGHT/2}),SCREEN_WIDTH,SCREEN_HEIGHT/2,COLOR_DARK_GREY);
 	t_ray ray;
-
 	
     for(int x = 0; x < SCREEN_WIDTH; x++)
     {
@@ -408,50 +460,58 @@ void render(t_cube *data)
 		// perpWallDist = (sideDistY - deltaDistY);
 
 
-		//Calculate height of line to draw on screen
-		int lineHeight = (int)(SCREEN_HEIGHT / ray.perpWallDist);
+		// //Calculate height of line to draw on screen
+		// int lineHeight = (int)(SCREEN_HEIGHT / ray.perpWallDist);
 
-		//calculate lowest and highest pixel to fill in current stripe
-		int drawStart = -lineHeight / 2 + SCREEN_HEIGHT / 2;
-		if(drawStart < 0)
-			drawStart = 0;
+		// //calculate lowest and highest pixel to fill in current stripe
+		// int drawStart = -lineHeight / 2 + SCREEN_HEIGHT / 2;
+		// if(drawStart < 0)
+		// 	drawStart = 0;
 
-		int drawEnd = lineHeight / 2 + SCREEN_HEIGHT / 2;
-		if(drawEnd >= SCREEN_HEIGHT)
-			drawEnd = SCREEN_HEIGHT - 1;
+		// int drawEnd = lineHeight / 2 + SCREEN_HEIGHT / 2;
+		// if(drawEnd >= SCREEN_HEIGHT)
+		// 	drawEnd = SCREEN_HEIGHT - 1;
+		calculate_wall_height(data,&ray);
 		
 		//texturing calculations
-		int texNum = worldMap[data->map.mapX][data->map.mapY] - 1; //1 subtracted from it so that texture 0 can be used!
+		data->texNum = worldMap[data->map.mapX][data->map.mapY] - 1; //1 subtracted from it so that texture 0 can be used!
 
 		//calculate value of wallX
-		double wallX; //where exactly the wall was hit
-		if (ray.side == 0) 
-			wallX = data->player.y + ray.perpWallDist * ray.rayDirY;
-		else           
-			wallX = data->player.x + ray.perpWallDist * ray.rayDirX;
-		wallX -= floor((wallX));
+		// double wallX; //where exactly the wall was hit
+		// if (ray.side == 0) 
+		// 	wallX = data->player.y + ray.perpWallDist * ray.rayDirY;
+		// else           
+		// 	wallX = data->player.x + ray.perpWallDist * ray.rayDirX;
+		// wallX -= floor((wallX));
+		calculate_ray_x_impact(data, &ray);
 
-		//x coordinate on the texture
-		int texX = (int)(wallX * (double)(texWidth));
-		if(ray.side == 0 && ray.rayDirX > 0) texX = texWidth - texX - 1;
-		if(ray.side == 1 && ray.rayDirY < 0) texX = texWidth - texX - 1;
+		// //x coordinate on the texture
+		// data->texX = (int)(ray.wallX * (double)(texWidth));
+		// if(ray.side == 0 && ray.rayDirX > 0)
+		// 	data->texX = texWidth - data->texX - 1;
+		// if(ray.side == 1 && ray.rayDirY < 0)
+		// 	data->texX = texWidth - data->texX - 1;
+		calculate_tex_x_coordinate(data ,&ray);
 
-		// How much to increase the texture coordinate per screen pixel
-		double step = 1.0 * texHeight / lineHeight;
+		
+		// // How much to increase the texture coordinate per screen pixel
+		// double step = 1.0 * texHeight / data->lineHeight;
 
-		// Starting texture coordinate
-		double texPos = (drawStart - SCREEN_HEIGHT / 2 + lineHeight / 2) * step;
+		// // Starting texture coordinate
+		// double texPos = (data->drawStart - SCREEN_HEIGHT / 2 + data->lineHeight / 2) * step;
 
-		for(int y = drawStart; y< drawEnd; y++)
-		{
-			// Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
-			int texY = (int)texPos & (texHeight - 1);
-			texPos += step;
-			int color = data->textures.texture[texNum][texHeight * texY + texX];
-			//make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
-			if(ray.side == 1) color = (color >> 1) & 8355711;
-			mlx_put_pixel_img(&data->img, x, y, color);
-		}
+		// for(int y = data->drawStart; y< data->drawEnd; y++)
+		// {
+		// 	// Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
+		// 	int texY = (int)texPos & (texHeight - 1);
+		// 	texPos += step;
+		// 	int color = data->textures.texture[data->texNum][texHeight * texY + texX];
+		// 	//make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
+		// 	if(ray.side == 1) color = (color >> 1) & 8355711;
+		// 	mlx_put_pixel_img(&data->img, x, y, color);
+		// }
+
+		draw_texture(data,&ray, &x);
 	}
 	mlx_put_image_to_window(data->mlx_ptr, data->wnd_ptr, data->img.img, 0, 0);
 }

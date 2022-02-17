@@ -33,6 +33,7 @@ typedef struct s_ray
 	int hit;
 	int side;
 	double perpWallDist;
+	double wallX;
 }	t_ray;
 
 typedef struct s_map
@@ -70,6 +71,11 @@ typedef struct s_cube
 	t_player player;
 	t_map map;
 	double cameraX;
+	int drawStart;
+	int drawEnd;
+	int lineHeight;
+	int texNum;
+	int texX;
 	
 
 } t_cube;
