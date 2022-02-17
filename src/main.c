@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: oronda <oronda@student.42nice.fr>          +#+  +:+       +#+        */
+/*   By: oronda <oronda@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/24 09:39:00 by oronda            #+#    #+#             */
-/*   Updated: 2022/02/11 21:50:52 by oronda           ###   ########.fr       */
+/*   Updated: 2022/02/17 16:37:41 by oronda           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <time.h>
+#include "GetNextLine/get_next_line.h"
 
 #define COLOR_GREEN 0x00FF00
 #define COLOR_GREEN_STYLE 0x69EC80
@@ -62,7 +63,53 @@ int worldMap[mapWidth][mapHeight]=
   {4,4,4,4,4,4,4,4,4,4,1,1,1,2,2,2,2,2,2,3,3,3,3,3}
 };
 
-void    mlx_put_pixel_img(t_img_data *img, int x, int y, int color)
+int	str_chr_end(char *str, char *strtofind)
+{
+	int		strlen;
+	int		tofind_len;
+
+	if (!str || !strtofind)
+		return (0);
+	tofind_len = ft_strlen(strtofind);
+	strlen = ft_strlen(str);
+	if (!tofind_len)
+		return (1);
+	if (strlen < tofind_len)
+		return (0);
+	str += strlen - tofind_len;
+	while (*str || *strtofind)
+	{
+		if (*str++ != *strtofind++)
+			return (0);
+	}
+	return (1);
+}
+
+int print_error(char* str)
+{
+	printf("%s", str);
+	return (1);
+}
+
+int	validate_args(int argc, char **argv)
+{
+	if (argc != 2)
+		return (print_error("enter a unique map as argument"));
+	if (!str_chr_end(argv[1], ".cub"))
+		return (print_error("map format is not .cub"));
+	return (1);
+}
+
+int	exit_hook(void *g_data)
+{
+	t_cube	*data;
+
+	data = (t_cube *)g_data;
+	exit(0);
+	return (0);
+}
+
+void mlx_put_pixel_img(t_img_data *img, int x, int y, int color)
 {
     char    *dst;
 
@@ -152,10 +199,10 @@ int handle_input(int keycode, void *g_data)
 	}
 		
 	if (keycode == KEY_ECHAP)
-	{}
-		//end_game(data);
-	//ft_putnbr(data->player.x);
-	//update_player(data);	
+	{
+		exit(0);
+	}
+	
 	printf("X : %lf , Y :%lf \n", data->player.x, data->player.y);
 	
 
@@ -183,22 +230,18 @@ void init_mlx(t_cube *data)
 {
 	data->mlx_ptr = mlx_init();
 	data->wnd_ptr = mlx_new_window(data->mlx_ptr,SCREEN_WIDTH,SCREEN_HEIGHT,"BelloCubo");
+	mlx_hook(data->wnd_ptr, DESTROYNOTIFY,1L << 17, exit_hook, &data);
 	mlx_key_hook(data->wnd_ptr, &handle_input, data);
-	
 }
 
 void init(t_cube *data)
 {
-	
 	init_mlx(data);
 	initPlayer(data);
-
 	t_img_data img_t;
-
-
-	 img_t.img = mlx_new_image(data->mlx_ptr,SCREEN_WIDTH,SCREEN_HEIGHT);
-	 img_t.addr = mlx_get_data_addr(img_t.img, &img_t.bpp, &img_t.line_length, &img_t.endian);
-	 data->img = img_t;
+	img_t.img = mlx_new_image(data->mlx_ptr,SCREEN_WIDTH,SCREEN_HEIGHT);
+	img_t.addr = mlx_get_data_addr(img_t.img, &img_t.bpp, &img_t.line_length, &img_t.endian);
+	data->img = img_t;
 	
 }
 
@@ -340,7 +383,10 @@ void draw_texture(t_cube *data, t_ray *ray, int *x)
 	double step = 1.0 * texHeight / data->lineHeight;
 	double texPos = (data->drawStart - SCREEN_HEIGHT / 2 + data->lineHeight / 2) * step;
 
-	for(int y = data->drawStart; y< data->drawEnd; y++)
+	int y;
+	y = data->drawStart;
+	//for(int y = data->drawStart; y< data->drawEnd; y++)
+	while(y < data->drawEnd)
 	{
 		// Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
 		int texY = (int)texPos & (texHeight - 1);
@@ -349,6 +395,7 @@ void draw_texture(t_cube *data, t_ray *ray, int *x)
 		//make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
 		if(ray->side == 1) color = (color >> 1) & 8355711;
 		mlx_put_pixel_img(&data->img, *x, y, color);
+		y++;
 	}
 }
 
@@ -359,7 +406,10 @@ void render(t_cube *data)
 	draw_rectangle(data,&((t_vector){0,SCREEN_HEIGHT/2}),SCREEN_WIDTH,SCREEN_HEIGHT/2,COLOR_DARK_GREY);
 	t_ray ray;
 	
-    for(int x = 0; x < SCREEN_WIDTH; x++)
+    // for(int x = 0; x < SCREEN_WIDTH; x++)
+	int x;
+	x = -1;
+	while(++x < SCREEN_WIDTH)
     {
 		//calculate ray position and direction
 		// data->cameraX = 2 * x / (double)SCREEN_WIDTH - 1; //x-coordinate in camera space
@@ -516,10 +566,14 @@ void render(t_cube *data)
 	mlx_put_image_to_window(data->mlx_ptr, data->wnd_ptr, data->img.img, 0, 0);
 }
 
-int main(void)
+int main(int argc, char **argv)
 {	
 	t_cube data;
+	validate_args(argc, argv);
+	if(!parse_map(argv[1], &data))
+		return (print_error("error"));
 	
+
 	init(&data);
 	generate_textures(&data);
 	render(&data);

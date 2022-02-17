@@ -4,8 +4,8 @@
 # include <math.h>
 
 #define texWidth 64
-	#define texHeight 64
-	#define SCREEN_WIDTH 800
+#define texHeight 64
+#define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
 
 
@@ -38,6 +38,7 @@ typedef struct s_ray
 
 typedef struct s_map
 {
+	char **map;
 	int mapX;
 	int mapY;
 } t_map;
@@ -81,8 +82,7 @@ typedef struct s_cube
 } t_cube;
 
 
-
-
+int parse_map(char*, t_cube*);
 
 
 # ifdef __linux__
@@ -98,8 +98,10 @@ typedef struct s_cube
 #  define KEY_LEFT 0
 #  define KEY_RIGHT 2
 #  define KEY_ECHAP 53
-#  define KEY_ROTATE_RIGHT 14
-#  define KEY_ROTATE_LEFT 12
+#  define KEY_ROTATE_RIGHT 124
+#  define KEY_ROTATE_LEFT 123
+#  define KEY_ECHAP 53
+
 
 # endif
 

@@ -1,4 +1,4 @@
-SRC = src/main.c
+SRC = src/main.c src/GetNextLine/get_next_line_utils.c src/GetNextLine/get_next_line.c src/parsing.c
 
 CC = gcc
 OBJS = $(SRC:%.c=%.o)
