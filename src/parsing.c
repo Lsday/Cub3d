@@ -3,65 +3,139 @@
 /*                                                        :::      ::::::::   */
 /*   parsing.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: oronda <oronda@student.42.fr>              +#+  +:+       +#+        */
+/*   By: oronda <oronda@student.42nice.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/17 15:24:03 by oronda            #+#    #+#             */
-/*   Updated: 2022/02/17 16:52:38 by oronda           ###   ########.fr       */
+/*   Updated: 2022/02/20 21:45:17 by oronda           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "GetNextLine/get_next_line.h"
-#include "fcntl.h"
+
+
 #include "cube.h"
+
+
 
 int is_valid_char(char c)
 {
-	if (c != '0' && c != '1' && c != 'N'&& c !='S' && c != 'E' && c != 'W' && c != '\n' )
+	if (c != '0' && c != '1' && c != 'N' && c !='S' && c != 'E' && c != 'W' && c != ' ' )
 		return 0;
 	return 1;
 }
 
-int parse_map(char *str, t_cube *data)
+void remove_newline(char *line)
 {
-	int fd;
-	fd = open(str,O_RDONLY);
-	if (fd <= 0)
-		return 0;
-	char *line;
-	int nb_of_lines = 0;
+  if (line[ft_strlen(line) - 1] == '\n')
+    line[ft_strlen(line) - 1] = '\0';
+}
 
-	while((line = get_next_line(fd)))
+
+
+int    parse_cub_file_map(int fd, char *file, t_cube *data, int nb_of_line_before)
+{
+	char 	*line;
+    int      max_line_lenght;
+    char    **map;
+	int 	nb_of_lines; 
+
+
+ // ---------VERIFY THE MAP --------- (First pass)
+ 	nb_of_lines = 0;
+	line = get_next_line(fd);
+	if(!line)
+		return 0;
+	max_line_lenght = 0;
+	while(line)
 	{
+		remove_newline(line);
+		int i;
+		int line_lenght;
+
+		i = 0;
+		if (line[i] == 0) // line is empty
+			return 0;
 		nb_of_lines++;
-		int i = -1;
-		int j = ft_strlen(line);
-		while(++i < j)
-		{
-			if(!is_valid_char(line[i]))
+		
+		line_lenght = ft_strlen(line);
+
+		if (max_line_lenght < line_lenght)
+			max_line_lenght = line_lenght;
+		
+		while(i < line_lenght)
+			if(!is_valid_char(line[i++]))
 				return 0;
-		}
+		free(line);
+		line = get_next_line(fd);
+		
+		
 	}
-	data->map.map = malloc(sizeof(char *) * nb_of_lines);
+	if (nb_of_lines < 3) // has to be minimum 3 lines for a valid map
+		return 0;
+
 	close(fd);
-	fd = open(str,O_RDONLY);
-	int i = -1;
-	while((line = get_next_line(fd)))
+	fd  = open(file, O_RDONLY);
+
+	
+	
+ // ---------PARSE THE MAP --------- (second pass)
+ 	int k;
+	k = 0;
+	while(k++ < nb_of_line_before) // go to the begining of the map
+		free(get_next_line(fd));
+	int x;
+	int y;
+	x = 0;
+	y = 0;
+	map = (char **)malloc(sizeof(char *) * nb_of_lines);
+	while(x < nb_of_lines)
+	{
+		map[x] = (char *)malloc(sizeof(char) * (max_line_lenght));
+		memset(map[x],0,max_line_lenght);
+		x++;
+	}
+		
+	line = get_next_line(fd);
+	
+	while(line)
 	{	
-		i++;
-		int l = ft_strlen(line);
-		data->map.map[i] = malloc(sizeof(char) * l);
-		int k = 0;
-		while(k < l)
+		remove_newline(line);
+		x = 0;
+		while(x < strlen(line))
 		{
-			data->map.map[i][k] = line[k];
-			printf("%c",data->map.map[i][k]);
-			k++;
+			if (line[x] == ' ')
+				map[y][x] = 0;
+			else
+				map[y][x] = line[x] - '0';
+			x++;
 		}
+		free(line);
+		line = get_next_line(fd);
+		y++;
+	}
+
+	
+	for (int j = 0; j < nb_of_lines; j++)
+	{
+		for (int i = 0; i < max_line_lenght; i++)
+		{
+			printf("%d", map[j][i]);
+		}
+		printf("\n");
 	}
 	return 1;
-
-	
-	
-	
-	
 }
+
+int is_space(char c)
+{
+	if (c == ' ' || c == '\t' || c == '\n' || c == '\v' || c == '\f' || c == '\r')
+		return 1;
+	return 0;
+}
+
+// int get_floor_color(char *str)
+// {
+// 	char *temp = str;
+// 	while(is_space(*temp))
+// 		temp++;
+// 	int R = ft_atoi(temp);
+// }

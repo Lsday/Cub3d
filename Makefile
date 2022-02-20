@@ -1,28 +1,40 @@
-SRC = src/main.c src/GetNextLine/get_next_line_utils.c src/GetNextLine/get_next_line.c src/parsing.c
+SRC = src/main.c GetNextLine/get_next_line_utils.c GetNextLine/get_next_line.c src/parsing.c
 
 CC = gcc
 OBJS = $(SRC:%.c=%.o)
 NAME = cube
-FLAGS = -g #-Werror -Wall -Werror
+FLAGS = -g -Werror -Wall -Werror
+LIBFT = ./libft/libft.a
+
+all:	$(NAME)
 
 # #LINUX
-# %.o: %.c
-# 	$(CC) $(FLAGS) -g  -I/usr/include -Imlx_linux -O3   -c $< -o $@
+%.o: %.c
+	$(CC) $(FLAGS) -I/usr/include -Imlx_linux  -c $< -o $@
 
-# $(NAME): $(OBJS)
-# 	$(CC) -g $(OBJS) -Lmlx_linux -lmlx_linux -L/usr/lib -Imlx_linux -lXext -lX11 -lm -lz -o $(NAME)
+#-O3
+
+$(NAME):  $(LIBFT) $(OBJS)
+	$(CC) $(FLAGS) $(OBJS) $(LIBFT)  -Lmlx_linux -lmlx_linux -L/usr/lib -Imlx_linux -lXext -lX11 -lm -lz -o $(NAME)
 
 #MACOS
-%.o: %.c
-	$(CC) $(FLAGS) -Imlx -c $< -o $@
+# %.o: %.c
+# 	$(CC) $(FLAGS) -Imlx -c $< -o $@
 
-$(NAME): $(OBJS)
-	$(CC) $(FLAGS) $(OBJS) -lmlx -framework OpenGL -framework AppKit -o $(NAME)
+# $(NAME): $(OBJS)
+# 	$(CC) $(FLAGS) $(OBJS) $(LIBFT) -lmlx -framework OpenGL -framework AppKit -o $(NAME)
+
+
+ 
+$(LIBFT):
+	$(MAKE) -C libft
 
 clean :
+	$(MAKE) -C libft clean
 	rm -rf ${OBJS}
 
 fclean : clean
+	$(MAKE) -C libft fclean
 	rm ${NAME}
 
 re : fclean ${NAME}	

@@ -1,0 +1,8 @@
+{
+	"files.associations": {
+		"cube.h": "c",
+		"unistd.h": "c",
+		"string.h": "c",
+		"stdio.h": "c"
+	}
+}

@@ -2,11 +2,13 @@
 # define CUBE_H
 
 # include <math.h>
-
-#define texWidth 64
-#define texHeight 64
-#define SCREEN_WIDTH 800
-#define SCREEN_HEIGHT 600
+# include "../libft/libft.h"
+# include "../GetNextLine/get_next_line.h" 
+#include "fcntl.h"
+# define texWidth 64
+# define texHeight 64
+# define SCREEN_WIDTH 800
+# define SCREEN_HEIGHT 600
 
 
 typedef struct s_player
@@ -59,6 +61,9 @@ typedef struct s_img_data
 
 typedef struct s_texture
 {
+	int floor_color;
+	int ceiling_color;
+	
 	int texture[8][texWidth * texHeight];
 } t_texture;
 
@@ -82,15 +87,17 @@ typedef struct s_cube
 } t_cube;
 
 
-int parse_map(char*, t_cube*);
+int parse_cub_file_map(int fd, char *file, t_cube *data, int nb_of_line_before);
 
 
 # ifdef __linux__
-#  define KEY_UP 122
+#  define KEY_UP 119
 #  define KEY_DOWN 115
-#  define KEY_LEFT 113
+#  define KEY_LEFT 97
 #  define KEY_RIGHT 100
 #  define KEY_ECHAP 65307
+#  define KEY_ROTATE_RIGHT 65363
+#  define KEY_ROTATE_LEFT 65361
 
 # elif __APPLE__
 #  define KEY_UP 13

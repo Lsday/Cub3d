@@ -3,22 +3,23 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: oronda <oronda@student.42.fr>              +#+  +:+       +#+        */
+/*   By: oronda <oronda@student.42nice.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/24 09:39:00 by oronda            #+#    #+#             */
-/*   Updated: 2022/02/17 16:37:41 by oronda           ###   ########.fr       */
+/*   Updated: 2022/02/20 21:48:03 by oronda           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-//#include "../mlx_linux/mlx.h"
-#include "mlx.h"
+#include "../mlx_linux/mlx.h"
+//#include "mlx.h"
 #include "cube.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
 #include <time.h>
-#include "GetNextLine/get_next_line.h"
+
+
 
 #define COLOR_GREEN 0x00FF00
 #define COLOR_GREEN_STYLE 0x69EC80
@@ -35,33 +36,33 @@
 
 void render(t_cube *data);
 
-int worldMap[mapWidth][mapHeight]=
-{
-  {4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7},
-  {4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,7},
-  {4,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7},
-  {4,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7},
-  {4,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,7},
-  {4,0,4,0,0,0,0,5,5,5,5,5,5,5,5,5,7,7,0,7,7,7,7,7},
-  {4,0,5,0,0,0,0,5,0,5,0,5,0,5,0,5,7,0,0,0,7,7,7,1},
-  {4,0,6,0,0,0,0,5,0,0,0,0,0,0,0,5,7,0,0,0,0,0,0,8},
-  {4,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,7,7,1},
-  {4,0,8,0,0,0,0,5,0,0,0,0,0,0,0,5,7,0,0,0,0,0,0,8},
-  {4,0,0,0,0,0,0,5,0,0,0,0,0,0,0,5,7,0,0,0,7,7,7,1},
-  {4,0,0,0,0,0,0,5,5,5,5,0,5,5,5,5,7,7,7,7,7,7,7,1},
-  {6,6,6,6,6,6,6,6,6,6,6,0,6,6,6,6,6,6,6,6,6,6,6,6},
-  {8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4},
-  {6,6,6,6,6,6,0,6,6,6,6,0,6,6,6,6,6,6,6,6,6,6,6,6},
-  {4,4,4,4,4,4,0,4,4,4,6,0,6,2,2,2,2,2,2,2,3,3,3,3},
-  {4,0,0,0,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,0,0,0,2},
-  {4,0,0,0,0,0,0,0,0,0,0,0,6,2,0,0,5,0,0,2,0,0,0,2},
-  {4,0,0,0,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,2,0,2,2},
-  {4,0,6,0,6,0,0,0,0,4,6,0,0,0,0,0,5,0,0,0,0,0,0,2},
-  {4,0,0,5,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,2,0,2,2},
-  {4,0,6,0,6,0,0,0,0,4,6,0,6,2,0,0,5,0,0,2,0,0,0,2},
-  {4,0,0,0,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,0,0,0,2},
-  {4,4,4,4,4,4,4,4,4,4,1,1,1,2,2,2,2,2,2,3,3,3,3,3}
-};
+// int data->map.map[mapWidth][mapHeight]=
+// {
+//   {4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7},
+//   {4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,7},
+//   {4,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7},
+//   {4,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7},
+//   {4,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,7},
+//   {4,0,4,0,0,0,0,5,5,5,5,5,5,5,5,5,7,7,0,7,7,7,7,7},
+//   {4,0,5,0,0,0,0,5,0,5,0,5,0,5,0,5,7,0,0,0,7,7,7,1},
+//   {4,0,6,0,0,0,0,5,0,0,0,0,0,0,0,5,7,0,0,0,0,0,0,8},
+//   {4,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,7,7,1},
+//   {4,0,8,0,0,0,0,5,0,0,0,0,0,0,0,5,7,0,0,0,0,0,0,8},
+//   {4,0,0,0,0,0,0,5,0,0,0,0,0,0,0,5,7,0,0,0,7,7,7,1},
+//   {4,0,0,0,0,0,0,5,5,5,5,0,5,5,5,5,7,7,7,7,7,7,7,1},
+//   {6,6,6,6,6,6,6,6,6,6,6,0,6,6,6,6,6,6,6,6,6,6,6,6},
+//   {8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4},
+//   {6,6,6,6,6,6,0,6,6,6,6,0,6,6,6,6,6,6,6,6,6,6,6,6},
+//   {4,4,4,4,4,4,0,4,4,4,6,0,6,2,2,2,2,2,2,2,3,3,3,3},
+//   {4,0,0,0,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,0,0,0,2},
+//   {4,0,0,0,0,0,0,0,0,0,0,0,6,2,0,0,5,0,0,2,0,0,0,2},
+//   {4,0,0,0,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,2,0,2,2},
+//   {4,0,6,0,6,0,0,0,0,4,6,0,0,0,0,0,5,0,0,0,0,0,0,2},
+//   {4,0,0,5,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,2,0,2,2},
+//   {4,0,6,0,6,0,0,0,0,4,6,0,6,2,0,0,5,0,0,2,0,0,0,2},
+//   {4,0,0,0,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,0,0,0,2},
+//   {4,4,4,4,4,4,4,4,4,4,1,1,1,2,2,2,2,2,2,3,3,3,3,3}
+// };
 
 int	str_chr_end(char *str, char *strtofind)
 {
@@ -94,17 +95,16 @@ int print_error(char* str)
 int	validate_args(int argc, char **argv)
 {
 	if (argc != 2)
-		return (print_error("enter a unique map as argument"));
+		return (print_error("enter a unique map as argument\n"));
 	if (!str_chr_end(argv[1], ".cub"))
-		return (print_error("map format is not .cub"));
+		return (print_error("map format is not .cub\n"));
 	return (1);
 }
 
 int	exit_hook(void *g_data)
 {
-	t_cube	*data;
-
-	data = (t_cube *)g_data;
+	// t_cube	*data;
+	// data = (t_cube *)g_data;
 	exit(0);
 	return (0);
 }
@@ -128,13 +128,13 @@ int handle_input(int keycode, void *g_data)
 	//move forward if no wall in front of you
     if (keycode == KEY_UP)
 	{
-		if(worldMap[(int)(data->player.x + data->player.dirX)][(int)(data->player.y)] == 0)
+		if(data->map.map[(int)(data->player.x + data->player.dirX)][(int)(data->player.y)] == 0)
 		{
 			data->player.x += data->player.dirX;
 			hasmove = 1;
 		}
     		
-		if(worldMap[(int)(data->player.x)][(int)(data->player.y + data->player.dirY)] == 0)
+		if(data->map.map[(int)(data->player.x)][(int)(data->player.y + data->player.dirY)] == 0)
 		{
 			data->player.y += data->player.dirY;
 			hasmove = 1;
@@ -144,13 +144,13 @@ int handle_input(int keycode, void *g_data)
     //move backwards if no wall behind you
     if(keycode == KEY_DOWN) 
     {
-      if(worldMap[(int)(data->player.x - data->player.dirX)][(int)(data->player.y)] == 0)
+      if(data->map.map[(int)(data->player.x - data->player.dirX)][(int)(data->player.y)] == 0)
 	  {
 		  data->player.x -= data->player.dirX;
 		  hasmove = 1;
 	  }
     		
-		if(worldMap[(int)(data->player.x)][(int)(data->player.y - data->player.dirY)] == 0)
+		if(data->map.map[(int)(data->player.x)][(int)(data->player.y - data->player.dirY)] == 0)
 		{
 			data->player.y -= data->player.dirY;
 			hasmove = 1;
@@ -188,7 +188,7 @@ int handle_input(int keycode, void *g_data)
 	{
 		data->player.x -= data->player.planeX;
 		data->player.y -= data->player.planeY;
-		 hasmove = 1;
+		hasmove = 1;
 	}
 	
 	if (keycode == KEY_RIGHT) //STRAFE RIGHT
@@ -328,7 +328,7 @@ void DDA(t_cube *data, t_ray *ray)
 			ray->side = 1;
 		}
 		//Check if ray has hit a wall
-		if(worldMap[data->map.mapX][data->map.mapY] > 0) 
+		if(data->map.map[data->map.mapX][data->map.mapY] > 0) 
 			ray->hit = 1;
 	}
 }
@@ -492,7 +492,7 @@ void render(t_cube *data)
 		// 		ray.side = 1;
 		// 	}
 		// 	//Check if ray has hit a wall
-		// 	if(worldMap[data->map.mapX][data->map.mapY] > 0) ray.hit = 1;
+		// 	if(data->map.map[data->map.mapX][data->map.mapY] > 0) ray.hit = 1;
 		// }
 		DDA(data,&ray);
 
@@ -524,7 +524,7 @@ void render(t_cube *data)
 		calculate_wall_height(data,&ray);
 		
 		//texturing calculations
-		data->texNum = worldMap[data->map.mapX][data->map.mapY] - 1; //1 subtracted from it so that texture 0 can be used!
+		data->texNum = data->map.map[data->map.mapX][data->map.mapY] - 1; //1 subtracted from it so that texture 0 can be used!
 
 		//calculate value of wallX
 		// double wallX; //where exactly the wall was hit
@@ -570,13 +570,14 @@ int main(int argc, char **argv)
 {	
 	t_cube data;
 	validate_args(argc, argv);
-	if(!parse_map(argv[1], &data))
-		return (print_error("error"));
+	int fd = open(argv[1], O_RDONLY);
+	if(!parse_cub_file_map(fd,argv[1], &data,0))
+		return (print_error("error\n"));
 	
 
-	init(&data);
-	generate_textures(&data);
-	render(&data);
-	mlx_loop(data.mlx_ptr);
+	// init(&data);
+	// generate_textures(&data);
+	// render(&data);
+	//mlx_loop(data.mlx_ptr);
 	return 0;
 }
